@@ -25,6 +25,8 @@
 
   html{scroll-behavior:smooth;}
 
+  section, header.hero{scroll-margin-top:64px;}
+
   body{
     background:var(--ink);
     color:var(--paper);
@@ -37,6 +39,20 @@
   ::selection{background:var(--ember);color:var(--ink);}
 
   a{color:inherit;}
+
+  /* Custom cursor: a slim arrow recolored to the site's palette — keeps
+     the familiar pointer shape but tints it to match the theme.
+     Only applied on devices with a precise pointer (desktop mice/trackpads)
+     so touchscreens keep their native behavior. */
+  @media (pointer: fine){
+    body{
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='24' viewBox='0 0 18 24'%3E%3Cpath d='M1 1 L1 19 L6 15 L9.5 22 L12.5 20.5 L9 13.5 L16 13.5 Z' fill='%230E1512' stroke='%234E8F82' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1, auto;
+    }
+
+    a, button, .nav-toggle, .chip, input, select, textarea, label{
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='24' viewBox='0 0 18 24'%3E%3Cpath d='M1 1 L1 19 L6 15 L9.5 22 L12.5 20.5 L9 13.5 L16 13.5 Z' fill='%23E8873A' stroke='%230E1512' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1, pointer;
+    }
+  }
 
   .contour-field{
     position:fixed;
@@ -97,7 +113,14 @@
     font-weight:600;
     font-size:1rem;
     letter-spacing:0.02em;
+    text-decoration:none;
+    color:var(--paper);
+    transition:opacity .2s;
   }
+
+  .nav-mark:hover, .nav-mark:focus-visible{opacity:0.75;}
+
+  .nav-mark:focus-visible{outline:1px solid var(--ember);outline-offset:4px;}
 
   .nav-mark span{color:var(--ember);}
 
@@ -116,11 +139,27 @@
     color:var(--muted);
     transition:color .2s;
     position:relative;
+    padding-bottom:4px;
+  }
+
+  .nav-links a::after{
+    content:'';
+    position:absolute;
+    left:0;bottom:0;
+    width:0;height:1px;
+    background:var(--ember);
+    transition:width .25s ease;
   }
 
   .nav-links a:hover, .nav-links a:focus-visible{color:var(--paper);}
 
   .nav-links a:focus-visible{outline:1px solid var(--ember);outline-offset:4px;}
+
+  .nav-links a:hover::after{width:100%;}
+
+  .nav-links a.active{color:var(--ember);}
+
+  .nav-links a.active::after{width:100%;}
 
   .nav-toggle{display:none;}
 
@@ -288,8 +327,22 @@
     letter-spacing:0.08em;
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:14px;
+    text-decoration:none;
+    transition:color .2s;
   }
+
+  .scroll-cue:hover, .scroll-cue:focus-visible{color:var(--ember);}
+
+  .scroll-cue:hover .line, .scroll-cue:focus-visible .line{background:linear-gradient(var(--ember),transparent);}
+
+  .scroll-cue:focus-visible{outline:1px solid var(--ember);outline-offset:6px;}
+
+  .scroll-cue .cue-text{display:flex;flex-direction:column;gap:3px;}
+
+  .scroll-cue .cue-text span:first-child{color:var(--paper);font-size:0.7rem;}
+
+  .scroll-cue .cue-text span:last-child{font-size:0.62rem;color:var(--muted);text-transform:none;letter-spacing:0.02em;}
 
   .scroll-cue .line{
     width:1px;height:34px;
@@ -563,6 +616,56 @@
 
   .survey-dataset span{color:var(--ember);}
 
+  /* ---------- EDUCATION (transcript) ---------- */
+  .transcript-list{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    background:var(--hairline);
+    border:1px solid var(--hairline);
+  }
+
+  .transcript-item{
+    background:var(--ink);
+    padding:26px 28px;
+    display:grid;
+    grid-template-columns:220px 1fr auto;
+    gap:24px;
+    align-items:center;
+  }
+
+  .transcript-item .degree{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:1.05rem;
+    margin-bottom:5px;
+  }
+
+  .transcript-item .school{
+    color:var(--teal);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    display:block;
+  }
+
+  .transcript-item .date-range{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    color:var(--muted);
+  }
+
+  .grade-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    color:var(--ink);
+    background:var(--ember);
+    padding:6px 12px;
+    border-radius:2px;
+    white-space:nowrap;
+    font-weight:500;
+    justify-self:start;
+  }
+
   /* ---------- LEADERSHIP ---------- */
   .command-list{
     display:flex;
@@ -695,6 +798,12 @@
       gap:16px;
     }
     .skill-groups, .survey-grid{grid-template-columns:1fr;}
+    .transcript-item{
+      grid-template-columns:1fr;
+      gap:10px;
+      align-items:start;
+    }
+    .grade-tag{justify-self:start;}
     .facts{grid-template-columns:1fr 1fr;}
     .footer-grid{grid-template-columns:1fr;gap:36px;}
     .footer-meta{text-align:left;}
@@ -724,15 +833,16 @@
 
 <nav>
   <div class="wrap">
-    <div class="nav-mark">ARMAAN<span>.</span>GARNAYAK</div>
+    <a class="nav-mark" href="https://ag24.vercel.app" aria-label="Armaan Garnayak — home">ARMAAN<span>.</span>GARNAYAK</a>
     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">MENU</button>
     <ul class="nav-links" id="navLinks">
-      <li><a href="#about">About</a></li>
-      <li><a href="#stack">Stack</a></li>
-      <li><a href="#log">Experience</a></li>
-      <li><a href="#surveys">Projects</a></li>
-      <li><a href="#command">Leadership</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="#about" data-nav>About</a></li>
+      <li><a href="#education" data-nav>Education</a></li>
+      <li><a href="#stack" data-nav>Stack</a></li>
+      <li><a href="#log" data-nav>Experience</a></li>
+      <li><a href="#surveys" data-nav>Projects</a></li>
+      <li><a href="#command" data-nav>Leadership</a></li>
+      <li><a href="#contact" data-nav>Contact</a></li>
     </ul>
   </div>
 </nav>
@@ -762,7 +872,13 @@
       </div>
     </div>
   </div>
-  <div class="scroll-cue"><div class="line"></div>SCROLL</div>
+  <a class="scroll-cue" href="#about" aria-label="Scroll to read the about section">
+    <div class="line"></div>
+    <span class="cue-text">
+      <span>Begin survey</span>
+      <span>read the field notes below</span>
+    </span>
+  </a>
 </header>
 
 <section id="about">
@@ -786,12 +902,54 @@
   </div>
 </section>
 
+<section id="education">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-tag">
+        <span>Transcript</span>
+        <span class="ref">REF. 01 / EDUCATION</span>
+      </div>
+      <div>
+        <h2 class="section-title">Education</h2>
+        <p class="section-desc">Academic record, from secondary school through to my current degree.</p>
+      </div>
+    </div>
+
+    <div class="transcript-list">
+      <div class="transcript-item">
+        <div>
+          <span class="degree">B.Tech, Electronics &amp; Computer Engineering</span>
+          <span class="school">Vellore Institute of Technology, Chennai</span>
+        </div>
+        <span class="date-range">Sep 2022 — Aug 2026</span>
+        <span class="grade-tag">CGPA 7.12</span>
+      </div>
+      <div class="transcript-item">
+        <div>
+          <span class="degree">Senior Secondary (Class XII), Science</span>
+          <span class="school">DAV Public School, NTPC Deepshikha, Kaniha</span>
+        </div>
+        <span class="date-range">Apr 2020 — Apr 2022</span>
+        <span class="grade-tag">77%</span>
+      </div>
+      <div class="transcript-item">
+        <div>
+          <span class="degree">Secondary (Class X)</span>
+          <span class="school">DAV Public School, NTPC Deepshikha, Kaniha</span>
+        </div>
+        <span class="date-range">Apr 2019 — Apr 2020</span>
+        <span class="grade-tag">89.8%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="stack">
   <div class="wrap">
     <div class="section-head">
       <div class="section-tag">
         <span>Instrumentation</span>
-        <span class="ref">REF. 01 / STACK</span>
+        <span class="ref">REF. 02 / STACK</span>
       </div>
       <div>
         <h2 class="section-title">Technical skills</h2>
@@ -844,7 +1002,7 @@
     <div class="section-head">
       <div class="section-tag">
         <span>Field Log</span>
-        <span class="ref">REF. 02 / EXPERIENCE</span>
+        <span class="ref">REF. 03 / EXPERIENCE</span>
       </div>
       <div>
         <h2 class="section-title">Experience</h2>
@@ -875,7 +1033,7 @@
     <div class="section-head">
       <div class="section-tag">
         <span>Surveys</span>
-        <span class="ref">REF. 03 / PROJECTS</span>
+        <span class="ref">REF. 04 / PROJECTS</span>
       </div>
       <div>
         <h2 class="section-title">Selected projects</h2>
@@ -940,7 +1098,7 @@
     <div class="section-head">
       <div class="section-tag">
         <span>Command</span>
-        <span class="ref">REF. 04 / LEADERSHIP</span>
+        <span class="ref">REF. 05 / LEADERSHIP</span>
       </div>
       <div>
         <h2 class="section-title">Leadership &amp; activities</h2>
@@ -1002,6 +1160,26 @@
     links.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
   }));
+
+  // Highlight the current section in the nav as the user scrolls
+  const navAnchors = document.querySelectorAll('[data-nav]');
+  const trackedSections = Array.from(navAnchors)
+    .map(a => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+
+  const setActive = (id) => {
+    navAnchors.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+    });
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+  trackedSections.forEach(section => observer.observe(section));
 </script>
 
 </body>
